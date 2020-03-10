@@ -74,8 +74,8 @@ int Server::evaluate_shot(unsigned int player, unsigned int x, unsigned int y) {
         throw 20;
     }
 
-    printf("value of x %d \n", x);
-    printf("value of y %d \n", y);
+//    printf("value of x %d \n", x);
+//    printf("value of y %d \n", y);
     if(x >= 10)
     {
         printf("Out of Bounds x \n");
@@ -114,22 +114,21 @@ int Server::evaluate_shot(unsigned int player, unsigned int x, unsigned int y) {
 int Server::process_shot(unsigned int player) {
     string xIn;
     string yIn;
-    char x;
-    char y;
     unsigned int intX;
     unsigned int intY;
-    char xLine[50];
     string coorIn;
-    unsigned int iX;
-    unsigned int iY;
-    const string test = "(x: 0, y: 10)";
-
     int result;
+
+    if(player == 0){
+        throw 20;
+    }else if (player >= 3){
+        throw 20;
+    }
 
     if(player == 1){
         ifstream shot_file("player_1.shot.json");
         getline(shot_file, coorIn);
-        printf("Input: %s \n", coorIn.c_str());
+//        printf("Input: %s \n", coorIn.c_str());
 
         string input[2];
         try {
@@ -139,7 +138,7 @@ int Server::process_shot(unsigned int player) {
             int i = 0;
             while (next != end) {
                 smatch match = *next;
-                cout << match.str() << "\n";
+//                cout << match.str() << "\n";
                 input[i] = match.str();
                 i++;
                 next++;
@@ -147,8 +146,6 @@ int Server::process_shot(unsigned int player) {
         } catch (regex_error& e){
             // Syntax error in the regular expression
         }
-
-
 
         intX = stoi(input[0]);
         intY = stoi(input[1]);
@@ -161,19 +158,35 @@ int Server::process_shot(unsigned int player) {
         ofstream result_file("player_1.result.json");
         result_file << result_str;
         result_file.close();
+        remove("player_1.shot.json");
     }
 
     if(player == 2){
         ifstream shot_file("player_2.shot.json");
-        shot_file.seekg(6,shot_file.beg);
-        shot_file.get(x);
-        shot_file.seekg(6, shot_file.cur);
-        shot_file.get(y);
-        iX = (unsigned int) x - '0';
-        iY = (unsigned int)y - '0';
-        shot_file.close();
+        getline(shot_file, coorIn);
+//        printf("Input: %s \n", coorIn.c_str());
 
-        result = evaluate_shot(player,iX,iY);
+        string input[2];
+        try {
+            regex re("\\d+");
+            sregex_iterator next(coorIn.begin(), coorIn.end(), re);
+            sregex_iterator end;
+            int i = 0;
+            while (next != end) {
+                smatch match = *next;
+//                cout << match.str() << "\n";
+                input[i] = match.str();
+                i++;
+                next++;
+            }
+        } catch (regex_error& e){
+            // Syntax error in the regular expression
+        }
+
+        intX = stoi(input[0]);
+        intY = stoi(input[1]);
+
+        result = evaluate_shot(player,intX,intY);
 
         string result_str = "{\n"
                             "    \"result\": "+to_string(result)+"\n"
@@ -181,6 +194,7 @@ int Server::process_shot(unsigned int player) {
         ofstream result_file("player_2.result.json");
         result_file << result_str;
         result_file.close();
+        remove("player_2.shot.json");
     }
 
 
