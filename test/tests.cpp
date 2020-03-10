@@ -83,7 +83,7 @@ protected:
 };
 
 TEST_F(ServerEvaluateShot, Hit_Detected){
-    ASSERT_EQ(HIT, srv.evaluate_shot(1,9,0));
+    ASSERT_EQ(HIT, srv.evaluate_shot(1,0,0));
 }
 
 TEST_F(ServerEvaluateShot, Miss_Detected){
@@ -140,7 +140,7 @@ TEST_F(ServerProcessShot, Hit_Detected){
 }
 
 TEST_F(ServerProcessShot, Miss_Detected){
-    set_up_shot(1, 1);
+    set_up_shot(9, 1);
     srv.process_shot(1);
     ASSERT_EQ(0, get_diff_dist("correct_miss_result.json", "player_1.result.json"));
 }
