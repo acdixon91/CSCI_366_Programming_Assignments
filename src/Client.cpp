@@ -42,9 +42,12 @@ void Client::initialize(unsigned int player, unsigned int board_size){
         fileName = "player_2.action_board.json";
     } else throw 20;
 
+    // Create a new ofstream with fileName from above
     ofstream startupBoardFile(fileName);
 
+    // In brackets so that cereal can terminate and correctly write the JSON file
     {
+        // Creates a 2D vector of the new board to go into a JSON file
         cereal::JSONOutputArchive archive( startupBoardFile );
         vector<vector<int>> board =  {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                                       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -58,7 +61,6 @@ void Client::initialize(unsigned int player, unsigned int board_size){
                                       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
         archive(CEREAL_NVP(board));
     }
-
     startupBoardFile.close();
 }
 
@@ -73,6 +75,7 @@ void Client::fire(unsigned int inX, unsigned int inY) {
     }
     ofstream fireFile(file);
 
+    // In brackets so that cereal can terminate and correctly write the JSON file
     {
         cereal::JSONOutputArchive archive(fireFile);
         int x = inX;
@@ -90,9 +93,9 @@ bool Client::result_available() {
     } else if (this->player == 2){
         file = "player_2.result.json";
     }
-
     ifstream fireFile(file);
 
+    // Checks to see if the file is available
     if(fireFile.good()){
         return true;
     } else return false;
@@ -103,35 +106,34 @@ int Client::get_result() {
     string file;
     string resultString;
     int result;
+
     if (this->player == 1){
         file = "player_1.result.json";
     } else if (this->player == 2){
         file = "player_2.result.json";
     }
-
     ifstream fireFile(file);
+
     // Calling getline twice so that it gets to the second line
     getline(fireFile, resultString);
     getline(fireFile,resultString);
-//    printf("result string: %s \n", resultString.c_str());
 
+    // Array for the Regex matches
     string input[2];
+    // Regex looking for a -digit or normal digit
     try {
-//        cout << "made it to regex" <<"\n";
         regex re("(-\\d)|(\\d)");
         sregex_iterator next(resultString.begin(), resultString.end(), re);
         sregex_iterator end;
         int i = 0;
         while (next != end) {
             smatch match = *next;
-//            cout << match.str() << " result of regex\n";
             input[i] = match.str();
             i++;
             next++;
         }
         result = stoi(input[0]);
     } catch (regex_error& e){
-        // Syntax error in the regular expression
     }
 
     // Remove result for player
@@ -149,13 +151,11 @@ int Client::get_result() {
     }else if (result == 0){
         return OUT_OF_BOUNDS;
     } else {throw 20;}
-
 }
 
 
 
 void Client::update_action_board(int result, unsigned int x, unsigned int y) {
-
     string fileName;
 
     if(player == 1){
@@ -164,14 +164,15 @@ void Client::update_action_board(int result, unsigned int x, unsigned int y) {
         fileName = "player_2.action_board.json";
     } else throw 20;
 
-
     ifstream is(fileName);
     vector<vector<int>> board;
 
+    // In brackets so that cereal can terminate and correctly write the JSON file
     {
         cereal::JSONInputArchive archive(is);
         archive(board);
     }
+
     is.close();
     if(player == 1){
         remove("player_1.action_board.json");
@@ -179,10 +180,9 @@ void Client::update_action_board(int result, unsigned int x, unsigned int y) {
         remove("player_2.action_board.json");
     }
 
-//    cout << board.at(y).at(x) << " - Location on board 0,0 ";
     board.at(y).at(x) = result;
 
-
+    // Create new file using the contents of the updated 2D board vector
     ofstream of(fileName);
     {
         cereal::JSONOutputArchive archive(of);
@@ -205,6 +205,8 @@ string Client::render_action_board(){
     ifstream is(fileName);
     vector<vector<int>> board;
 
+    // In brackets so that cereal can terminate and correctly write the JSON file
+    // Reads in the JSON
     {
         cereal::JSONInputArchive archive(is);
         archive(board);
@@ -215,13 +217,10 @@ string Client::render_action_board(){
 
     for(int i = 0; i < 10; i++){
         for(int j = 0; j < 10; j++){
-            string point = to_string(board.at(j).at(i));
+            string point = to_string(board.at(i).at(j));
              board_string += point;
         }
         board_string.append(1,'\n');
     }
-//    printf("Board: \n %s \n", board_string.c_str());
-//    string a = to_string(board.at(0).at(0));
-//    cout << "a is: " << a << "\n";
     return board_string;
 }
