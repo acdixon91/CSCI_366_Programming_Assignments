@@ -65,8 +65,10 @@ void Server::initialize(unsigned int board_size,
 }
 
 
-int Server::evaluate_shot(unsigned int player, unsigned int x, unsigned int y) {
+int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yIn) {
     char pos;
+    int x = xIn;
+    int y = yIn;
 
     if (player == 0){
         throw 20;
@@ -87,31 +89,70 @@ int Server::evaluate_shot(unsigned int player, unsigned int x, unsigned int y) {
     }
 
     if(player == 1){
-        int off = (y * 10) + x;
-        p1_setup_board.seekg(off,p1_setup_board.beg);
-        p1_setup_board.get(pos);
-        p1_setup_board.seekg(0,p1_setup_board.beg);
-//        printf("Ship on board 1: %c \n", pos);
+        int offset;
+
+        switch(y){
+            case 0:
+                offset = 0;
+                break;
+            case 1:
+                offset = 1;
+                break;
+            case 2:
+                offset = 2;
+                break;
+            case 3:
+                offset = 3;
+                break;
+            case 4:
+                offset = 4;
+                break;
+            case 5:
+                offset = 5;
+                break;
+            case 6:
+                offset = 6;
+                break;
+            case 7:
+                offset = 7;
+                break;
+            case 8:
+                offset = 8;
+                break;
+            case 9:
+                offset = 9;
+                break;
+        }
+
+
+        int off = ((y * 10) + x + offset);
+        cout << "off: " << off << "\n";
+        p2_setup_board.seekg(off,p2_setup_board.beg);
+        p2_setup_board.get(pos);
+        p2_setup_board.seekg(0,p2_setup_board.beg);
+        printf("Ship on board 2: %c \n", pos);
     }
 
     if(player == 2){
         int off = (y * 10) + x;
-        p2_setup_board.seekg(off,p1_setup_board.beg);
-        p2_setup_board.get(pos);
-        p2_setup_board.seekg(0,p1_setup_board.beg);
-//        printf("Ship on board 2: %c \n", pos);
+        p1_setup_board.seekg(off,p1_setup_board.beg);
+        p1_setup_board.get(pos);
+        p1_setup_board.seekg(0,p1_setup_board.beg);
+        printf("Ship on board 1: %c \n", pos);
     }
+
+    cout << "what was hit: " << pos << "\n";
 
     if ( pos == '_' ){
         return MISS;
     } else {
         return HIT;
     }
-
 }
 
 
 int Server::process_shot(unsigned int player) {
+    string file;
     string xIn;
     string yIn;
     unsigned int intX;
@@ -121,19 +162,32 @@ int Server::process_shot(unsigned int player) {
 
     if(player == 0){
         throw 20;
+    }else if(player == 1){
+        file = "player_1.shot.json";
+    }else if(player == 2){
+        file = "player_2.shot.json";
     }else if (player >= 3){
         throw 20;
     }
 
     if(player == 1){
         ifstream shot_file("player_1.shot.json");
-        getline(shot_file, coorIn);
-//        printf("Input: %s \n", coorIn.c_str());
+
+        if(!shot_file.good()){
+            return NO_SHOT_FILE;
+        }
+
+//        getline(shot_file, coorIn);
+//        getline(shot_file, coorIn);
+//        std::ifstream t("file.txt");
+        std::string str((std::istreambuf_iterator<char>(shot_file)),
+                        std::istreambuf_iterator<char>());
+//        printf("Input: %s \n", str.c_str());
 
         string input[2];
         try {
             regex re("\\d+");
-            sregex_iterator next(coorIn.begin(), coorIn.end(), re);
+            sregex_iterator next(str.begin(), str.end(), re);
             sregex_iterator end;
             int i = 0;
             while (next != end) {
@@ -146,7 +200,9 @@ int Server::process_shot(unsigned int player) {
         } catch (regex_error& e){
             // Syntax error in the regular expression
         }
-
+        shot_file.close();
+        cout << input[0] << " input 0 of shot\n";
+        cout << input[1] << " input 1 of shot\n";
         intX = stoi(input[0]);
         intY = stoi(input[1]);
 
@@ -163,13 +219,21 @@ int Server::process_shot(unsigned int player) {
 
     if(player == 2){
         ifstream shot_file("player_2.shot.json");
-        getline(shot_file, coorIn);
+
+        if(!shot_file.good()){
+            return NO_SHOT_FILE;
+        }
+
+        std::string str((std::istreambuf_iterator<char>(shot_file)),
+                        std::istreambuf_iterator<char>());
+
+//        getline(shot_file, coorIn);
 //        printf("Input: %s \n", coorIn.c_str());
 
         string input[2];
         try {
             regex re("\\d+");
-            sregex_iterator next(coorIn.begin(), coorIn.end(), re);
+            sregex_iterator next(str.begin(), str.end(), re);
             sregex_iterator end;
             int i = 0;
             while (next != end) {
@@ -182,6 +246,8 @@ int Server::process_shot(unsigned int player) {
         } catch (regex_error& e){
             // Syntax error in the regular expression
         }
+
+        shot_file.close();
 
         intX = stoi(input[0]);
         intY = stoi(input[1]);
