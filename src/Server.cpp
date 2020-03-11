@@ -27,7 +27,7 @@
  * @param file - the file whose length we want to query
  * @return length of the file in bytes
  */
-int get_file_length(ifstream *file){
+int get_file_length(ifstream *file) {
     file->seekg(0, file->end);
     int length = file->tellg();
     file->seekg(0, file->beg);
@@ -38,30 +38,21 @@ int get_file_length(ifstream *file){
 
 void Server::initialize(unsigned int board_size,
                         string p1_setup_board,
-                        string p2_setup_board){
+                        string p2_setup_board) {
 
     this->board_size = board_size;
     this->p1_setup_board.open(p1_setup_board);
     this->p2_setup_board.open(p2_setup_board);
 
 
-    if (p1_setup_board.compare("player_1.setup_board.txt") != 0 || p2_setup_board.compare("player_2.setup_board.txt") != 0 ){
+    if (p1_setup_board.compare("player_1.setup_board.txt") != 0 ||
+        p2_setup_board.compare("player_2.setup_board.txt") != 0) {
         throw 20;
     }
 
-    if (board_size != 10){
+    if (board_size != 10) {
         throw 20;
     }
-
-
-
-//    ifstream ifstr1(p1_setup_board);
-//    int size1 = get_file_length(&ifstr1);
-//    assert(size1 == 110);
-//    ifstream ifstr2(p2_setup_board);
-//    int size2 = get_file_length(&ifstr2);
-//    assert(size2 == 110);
-
 }
 
 
@@ -69,81 +60,84 @@ int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yI
     char pos;
     int x = xIn;
     int y = yIn;
+    int offset;
 
-    if (player == 0){
+    // Make sure player is either 1 or 2
+    if (player == 0) {
         throw 20;
-    } else if (player > 2){
+    } else if (player > 2) {
         throw 20;
     }
 
 //    printf("value of x %d \n", x);
 //    printf("value of y %d \n", y);
-    if(x >= 10)
-    {
+
+    // Make sure board is right size
+    if (x >= 10) {
         printf("Out of Bounds x \n");
         return OUT_OF_BOUNDS;
     }
-    if (y >= 10){
+    if (y >= 10) {
         printf("Out of Bounds y \n");
         return OUT_OF_BOUNDS;
     }
 
-    if(player == 1){
-        int offset;
+    // The lines of the text files are 10 char becuase of \n,
+    // this helps offset for each line
+    switch (y) {
+        case 0:
+            offset = 0;
+            break;
+        case 1:
+            offset = 1;
+            break;
+        case 2:
+            offset = 2;
+            break;
+        case 3:
+            offset = 3;
+            break;
+        case 4:
+            offset = 4;
+            break;
+        case 5:
+            offset = 5;
+            break;
+        case 6:
+            offset = 6;
+            break;
+        case 7:
+            offset = 7;
+            break;
+        case 8:
+            offset = 8;
+            break;
+        case 9:
+            offset = 9;
+            break;
+    }
 
-        switch(y){
-            case 0:
-                offset = 0;
-                break;
-            case 1:
-                offset = 1;
-                break;
-            case 2:
-                offset = 2;
-                break;
-            case 3:
-                offset = 3;
-                break;
-            case 4:
-                offset = 4;
-                break;
-            case 5:
-                offset = 5;
-                break;
-            case 6:
-                offset = 6;
-                break;
-            case 7:
-                offset = 7;
-                break;
-            case 8:
-                offset = 8;
-                break;
-            case 9:
-                offset = 9;
-                break;
-        }
-
-
+    //gets the char at the x,y pos
+    if (player == 1) {
         int off = ((y * 10) + x + offset);
-        cout << "off: " << off << "\n";
-        p2_setup_board.seekg(off,p2_setup_board.beg);
+        p2_setup_board.seekg(off, p2_setup_board.beg);
         p2_setup_board.get(pos);
-        p2_setup_board.seekg(0,p2_setup_board.beg);
+        p2_setup_board.seekg(0, p2_setup_board.beg);
         printf("Ship on board 2: %c \n", pos);
     }
 
-    if(player == 2){
-        int off = (y * 10) + x;
-        p1_setup_board.seekg(off,p1_setup_board.beg);
+    //gets the char at the x,y pos
+    if (player == 2) {
+        int off = (y * 10) + x + offset;
+        p1_setup_board.seekg(off, p1_setup_board.beg);
         p1_setup_board.get(pos);
-        p1_setup_board.seekg(0,p1_setup_board.beg);
+        p1_setup_board.seekg(0, p1_setup_board.beg);
         printf("Ship on board 1: %c \n", pos);
     }
 
-    cout << "what was hit: " << pos << "\n";
+//    cout << "what was hit: " << pos << "\n";
 
-    if ( pos == '_' ){
+    if (pos == '_') {
         return MISS;
     } else {
         return HIT;
@@ -160,109 +154,69 @@ int Server::process_shot(unsigned int player) {
     string coorIn;
     int result;
 
-    if(player == 0){
+    if (player == 0) {
         throw 20;
-    }else if(player == 1){
+    } else if (player == 1) {
         file = "player_1.shot.json";
-    }else if(player == 2){
+    } else if (player == 2) {
         file = "player_2.shot.json";
-    }else if (player >= 3){
+    } else if (player >= 3) {
         throw 20;
     }
+    ifstream shot_file(file);
+
+    // Checks to see if there is a shotfile waiting to be read
+    if (!shot_file.good()) {
+        return NO_SHOT_FILE;
+    }
+
+    // Create a string from the shot_file
+    std::string str((std::istreambuf_iterator<char>(shot_file)),
+                    std::istreambuf_iterator<char>());
+//        printf("Input: %s \n", str.c_str());
+    string input[2];
+
+    // try/catch for the regex expresion. Tries to find groups of digits within the shot_file string
+    try {
+        regex re("\\d+");
+        sregex_iterator next(str.begin(), str.end(), re);
+        sregex_iterator end;
+        int i = 0;
+        while (next != end) {
+            smatch match = *next;
+//                cout << match.str() << "\n";
+            input[i] = match.str();
+            i++;
+            next++;
+        }
+    } catch (regex_error &e) {
+    }
+    shot_file.close();
+
+    // Convert the input chars into ints
+    intX = stoi(input[0]);
+    intY = stoi(input[1]);
+
+    // Send the x,y input to the evaluate_shot method
+    result = evaluate_shot(player, intX, intY);
+
+    // String of JSON format with the result int
+    string result_str = "{\n"
+                        "    \"result\": " + to_string(result) + "\n"
+                                                                 "}";
 
     if(player == 1){
-        ifstream shot_file("player_1.shot.json");
-
-        if(!shot_file.good()){
-            return NO_SHOT_FILE;
-        }
-
-//        getline(shot_file, coorIn);
-//        getline(shot_file, coorIn);
-//        std::ifstream t("file.txt");
-        std::string str((std::istreambuf_iterator<char>(shot_file)),
-                        std::istreambuf_iterator<char>());
-//        printf("Input: %s \n", str.c_str());
-
-        string input[2];
-        try {
-            regex re("\\d+");
-            sregex_iterator next(str.begin(), str.end(), re);
-            sregex_iterator end;
-            int i = 0;
-            while (next != end) {
-                smatch match = *next;
-//                cout << match.str() << "\n";
-                input[i] = match.str();
-                i++;
-                next++;
-            }
-        } catch (regex_error& e){
-            // Syntax error in the regular expression
-        }
-        shot_file.close();
-        cout << input[0] << " input 0 of shot\n";
-        cout << input[1] << " input 1 of shot\n";
-        intX = stoi(input[0]);
-        intY = stoi(input[1]);
-
-        result = evaluate_shot(player,intX,intY);
-
-        string result_str = "{\n"
-                            "    \"result\": "+to_string(result)+"\n"
-                                                                 "}";
-        ofstream result_file("player_1.result.json");
-        result_file << result_str;
-        result_file.close();
         remove("player_1.shot.json");
-    }
-
-    if(player == 2){
-        ifstream shot_file("player_2.shot.json");
-
-        if(!shot_file.good()){
-            return NO_SHOT_FILE;
-        }
-
-        std::string str((std::istreambuf_iterator<char>(shot_file)),
-                        std::istreambuf_iterator<char>());
-
-//        getline(shot_file, coorIn);
-//        printf("Input: %s \n", coorIn.c_str());
-
-        string input[2];
-        try {
-            regex re("\\d+");
-            sregex_iterator next(str.begin(), str.end(), re);
-            sregex_iterator end;
-            int i = 0;
-            while (next != end) {
-                smatch match = *next;
-//                cout << match.str() << "\n";
-                input[i] = match.str();
-                i++;
-                next++;
-            }
-        } catch (regex_error& e){
-            // Syntax error in the regular expression
-        }
-
-        shot_file.close();
-
-        intX = stoi(input[0]);
-        intY = stoi(input[1]);
-
-        result = evaluate_shot(player,intX,intY);
-
-        string result_str = "{\n"
-                            "    \"result\": "+to_string(result)+"\n"
-                                                                 "}";
-        ofstream result_file("player_2.result.json");
-        result_file << result_str;
-        result_file.close();
+        file = "player_1.result.json";
+    }else if(player == 2){
         remove("player_2.shot.json");
+        file = "player_2.result.json";
     }
 
+    // Write result to JSON file
+    ofstream result_file(file);
+    result_file << result_str;
+    result_file.close();
 
-   return SHOT_FILE_PROCESSED;
+    return SHOT_FILE_PROCESSED;
 }
