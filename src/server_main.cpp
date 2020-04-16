@@ -40,5 +40,4 @@ int main(){
         }
         cout << "Processed shot from player 2" << endl;
     }
-
 }
