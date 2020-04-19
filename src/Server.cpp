@@ -55,36 +55,33 @@ void Server::initialize(unsigned int board_size,
     }
 }
 
+Server::~Server() {
+}
 
-int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yIn) {
+
+BitArray2D *Server::scan_setup_board(string setup_board_name){
+
+    unsigned int col; // y value
+    unsigned int row; // x value
+    unsigned int offset;
     char pos;
-    int x = xIn;
-    int y = yIn;
-    int offset;
+    int player;
 
-    // Make sure player is either 1 or 2
-    if (player == 0) {
-        throw 20;
-    } else if (player > 2) {
-        throw 20;
+
+    if(setup_board_name == "p1_setup_board"){
+        p1_setup_board = new BitArray2D(BOARD_SIZE,BOARD_SIZE);
+        player = 1;
+
+    } else if (setup_board_name == "p2_setup_board"){
+        p2_setup_board = new BitArray2D(BOARD_SIZE,BOARD_SIZE);
+        player = 2;
     }
 
-//    printf("value of x %d \n", x);
-//    printf("value of y %d \n", y);
 
-    // Make sure board is right size
-    if (x >= 10) {
-        printf("Out of Bounds x \n");
-        return OUT_OF_BOUNDS;
-    }
-    if (y >= 10) {
-        printf("Out of Bounds y \n");
-        return OUT_OF_BOUNDS;
-    }
 
     // The lines of the text files are 10 char becuase of \n,
     // this helps offset for each line
-    switch (y) {
+    switch (col) {
         case 0:
             offset = 0;
             break;
@@ -119,7 +116,7 @@ int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yI
 
     //gets the char at the x,y pos
     if (player == 1) {
-        int off = ((y * 10) + x + offset);
+        int off = ((col * 10) + row + offset);
         p2_setup_board.seekg(off, p2_setup_board.beg);
         p2_setup_board.get(pos);
         p2_setup_board.seekg(0, p2_setup_board.beg);
@@ -128,7 +125,7 @@ int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yI
 
     //gets the char at the x,y pos
     if (player == 2) {
-        int off = (y * 10) + x + offset;
+        int off = (col * 10) + row + offset;
         p1_setup_board.seekg(off, p1_setup_board.beg);
         p1_setup_board.get(pos);
         p1_setup_board.seekg(0, p1_setup_board.beg);
@@ -142,10 +139,96 @@ int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yI
     } else {
         return HIT;
     }
-BitArray2D *Server::scan_setup_board(string setup_board_name){
+
 }
-}
-Server::~Server() {
+
+
+int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yIn) {
+    char pos;
+    int x = xIn;
+    int y = yIn;
+    int offset;
+
+    // Make sure player is either 1 or 2
+    if (player == 0) {
+        throw 20;
+    } else if (player > 2) {
+        throw 20;
+    }
+
+//    printf("value of x %d \n", x);
+//    printf("value of y %d \n", y);
+
+    // Make sure board is right size
+    if (x >= 10) {
+        printf("Out of Bounds x \n");
+        return OUT_OF_BOUNDS;
+    }
+    if (y >= 10) {
+        printf("Out of Bounds y \n");
+        return OUT_OF_BOUNDS;
+    }
+
+//    // The lines of the text files are 10 char becuase of \n,
+//    // this helps offset for each line
+//    switch (y) {
+//        case 0:
+//            offset = 0;
+//            break;
+//        case 1:
+//            offset = 1;
+//            break;
+//        case 2:
+//            offset = 2;
+//            break;
+//        case 3:
+//            offset = 3;
+//            break;
+//        case 4:
+//            offset = 4;
+//            break;
+//        case 5:
+//            offset = 5;
+//            break;
+//        case 6:
+//            offset = 6;
+//            break;
+//        case 7:
+//            offset = 7;
+//            break;
+//        case 8:
+//            offset = 8;
+//            break;
+//        case 9:
+//            offset = 9;
+//            break;
+//    }
+//
+//    //gets the char at the x,y pos
+//    if (player == 1) {
+//        int off = ((y * 10) + x + offset);
+//        p2_setup_board.seekg(off, p2_setup_board.beg);
+//        p2_setup_board.get(pos);
+//        p2_setup_board.seekg(0, p2_setup_board.beg);
+//        printf("Ship on board 2: %c \n", pos);
+//    }
+//
+//    //gets the char at the x,y pos
+//    if (player == 2) {
+//        int off = (y * 10) + x + offset;
+//        p1_setup_board.seekg(off, p1_setup_board.beg);
+//        p1_setup_board.get(pos);
+//        p1_setup_board.seekg(0, p1_setup_board.beg);
+//        printf("Ship on board 1: %c \n", pos);
+//    }
+//
+////    cout << "what was hit: " << pos << "\n";
+//
+//    if (pos == '_') {
+//        return MISS;
+//    } else {
+//        return HIT;
+//    }
 }
 
 

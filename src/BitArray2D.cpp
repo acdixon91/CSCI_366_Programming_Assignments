@@ -15,9 +15,29 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <math.h>
+#include <cstring>
 #include "BitArray2D.hpp"
 
 BitArray2D::BitArray2D(unsigned int rows, unsigned int columns) {
+
+    this->columns = columns;
+    this->rows = rows;
+
+    cout << "num of columns: " << columns << "\n";
+
+    if(rows*columns == 0){
+        throw 20;
+    }
+
+    int arraySize = (rows * columns)/8 + 1;
+    char c[15];
+
+    for (int i = 0; i < arraySize; i++) {
+        c[i] = '\0';
+    }
+
+    array = c;
+    cout << arraySize << "\n";
 
 }
 
@@ -28,7 +48,16 @@ BitArray2D::~BitArray2D() {
 
 
 bool BitArray2D::get(unsigned int row, unsigned int column){
-   // check array bounds
+
+   // check array bounds high
+   if (column >= 10 || row >= 10){
+       throw 20;
+   }
+
+   // check area bounds low
+    if (column < 0 || row < 0){
+        throw 20;
+    }
 
    // get the element
    return get_bit_elem(array, columns, row, column);
@@ -37,7 +66,16 @@ bool BitArray2D::get(unsigned int row, unsigned int column){
 
 
 void BitArray2D::set(unsigned int row, unsigned int column){
+
    // check array bounds
+    if (column >= 10 || row >= 10){
+        throw 20;
+    }
+
+    // check area bounds low
+    if (column < 0 || row < 0){
+        throw 20;
+    }
 
    // set the element
    set_bit_elem(array, columns, row, column);
