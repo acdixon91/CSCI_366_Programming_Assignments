@@ -40,8 +40,11 @@ void Server::initialize(unsigned int board_size,
                         string p1_setup_board,
                         string p2_setup_board) {
 
+    ifstream player_1setup_board;
+    ifstream player_2setup_board;
+
     this->board_size = board_size;
-    this->p1_setup_board.open(p1_setup_board);
+    player_1setup_board.open("player_1.setup_board.txt");
     this->p2_setup_board.open(p2_setup_board);
 
 
