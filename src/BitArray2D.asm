@@ -20,6 +20,9 @@ _set_bit_elem:
 
 
 
+        mov [rbp - 8], r13
+        mov [rbp - 16], r14
+
         mov rax, rsi
         mul rdx         ; row*row_width
         add rax, rcx    ; + column
@@ -40,15 +43,19 @@ _set_bit_elem:
         mov r13, 1      ; moving 1 into r8
         shl r13, cl     ; shift r12 by mask value
 
-        mov rax, r10    ; move chosen byte num to rax
+        mov rsi, r10
         mov r9, 8
-        mul r9          ; multiply byte num * 8 bits
+        mov rax, rsi    ; move chosen byte num to rax
+;        mul r9          ; multiply byte num * 8 bits
+
 
         mov r14, [rdi + rax]    ; get the byte at that address
         or r14, r13             ; or mask + byte
         mov [rdi + rax], r14    ; move result back into memory
 
 
+        mov r13, [rbp - 8]
+        mov r14, [rbp - 16]
 
         mov rsp, rbp        ; restore stack pointer to before we pushed parameters onto the stack
         pop rbp             ; remove rbp from the stack to restore rsp to initial value
@@ -79,6 +86,8 @@ _get_bit_elem:
                 ; r11 contains byte_offset
                 ; rcx contains mask
 
+                mov [rbp - 8], r13
+                mov [rbp - 16], r14
 
 
                 mov rax, rsi
@@ -103,7 +112,7 @@ _get_bit_elem:
 
                 mov rax, r10    ; move chosen byte num to rax
                 mov r9, 8
-                mul r9          ; multiply byte num * 8 bits
+;                mul r9          ; multiply byte num * 8 bits
 
                 mov r14, [rdi + rax]    ; get the byte at that address
                 and r14, r13            ; and mask + byte
@@ -111,6 +120,9 @@ _get_bit_elem:
                 setg r14b
 
                 movsx rax, r14b
+
+                mov r13, [rbp - 8]
+                mov r14, [rbp - 16]
 
 
         mov rsp, rbp        ; restore stack pointer to before we pushed parameters onto the stack
