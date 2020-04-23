@@ -23,8 +23,6 @@ BitArray2D::BitArray2D(unsigned int rows, unsigned int columns) {
     this->columns = columns;
     this->rows = rows;
 
-    cout << "num of columns: " << columns << "\n";
-
     if(rows*columns == 0){
         throw 20;
     }
@@ -32,16 +30,6 @@ BitArray2D::BitArray2D(unsigned int rows, unsigned int columns) {
     int arraySize = (rows * columns)/8 + 1;
 
     array = (char*)calloc(arraySize, sizeof(char));
-
-//    char c[arraySize];
-//
-//    for (int i = 0; i <= arraySize; i++) {
-//        c[i] = '\0';
-//    }
-
-//    array = c;
-    cout << arraySize << "\n";
-
 }
 
 
