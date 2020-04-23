@@ -30,13 +30,16 @@ BitArray2D::BitArray2D(unsigned int rows, unsigned int columns) {
     }
 
     int arraySize = (rows * columns)/8 + 1;
-    char c[arraySize];
 
-    for (int i = 0; i <= arraySize; i++) {
-        c[i] = '\0';
-    }
+    array = (char*)calloc(arraySize, sizeof(char));
 
-    array = c;
+//    char c[arraySize];
+//
+//    for (int i = 0; i <= arraySize; i++) {
+//        c[i] = '\0';
+//    }
+
+//    array = c;
     cout << arraySize << "\n";
 
 }
