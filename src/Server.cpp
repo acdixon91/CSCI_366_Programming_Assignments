@@ -114,13 +114,16 @@ BitArray2D *Server::scan_setup_board(string setup_board_name){
             for (int j = 0; j < col; j++) {
                 int off = ((i * 10) + j + offset);
                 player_1setup_board.seekg(off, player_1setup_board.beg);
+
                 player_1setup_board.get(pos);
+                cout << "pos: " << pos << '\n';
                 player_1setup_board.seekg(0, player_1setup_board.beg);
                 if(pos != '_'){
                     localBoard->set(i,j);
                 }
             }
         }
+        player_1setup_board.close();
         return localBoard;
 
     } else if (setup_board_name == "player_2.setup_board.txt"){
