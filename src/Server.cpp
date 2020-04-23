@@ -200,12 +200,10 @@ int Server::evaluate_shot(unsigned int player, unsigned int xIn, unsigned int yI
 //    printf("value of y %d \n", y);
 
     // Make sure board is right size
-    if (x >= 10) {
-        printf("Out of Bounds x \n");
+    if (x >= 10 || x < 0) {
         return OUT_OF_BOUNDS;
     }
-    if (y >= 10) {
-        printf("Out of Bounds y \n");
+    if (y >= 10 || y < 0) {
         return OUT_OF_BOUNDS;
     }
 
